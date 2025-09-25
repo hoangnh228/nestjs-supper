@@ -17,6 +17,7 @@ class ConfigSchema {
   @IsString() ACCESS_TOKEN_EXPIRES_IN: string
   @IsString() REFRESH_TOKEN_SECRET: string
   @IsString() REFRESH_TOKEN_EXPIRES_IN: string
+  @IsString() API_KEY: string
   @IsInt() APP_PORT: number
 }
 

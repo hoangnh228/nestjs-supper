@@ -80,6 +80,7 @@ export class AuthService {
     try {
       // 1. Verify refresh token
       const { userId } = await this.tokenService.verifyRefreshToken(refreshToken)
+
       // 2. check exists
       await this.prisma.refreshToken.findUniqueOrThrow({
         where: {
@@ -96,6 +97,28 @@ export class AuthService {
 
       // 4. generate new tokens
       return await this.generateTokens({ userId })
+    } catch (error) {
+      // nếu đã refresh token rồi => thông báo refresh token đã bị hack
+      if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
+        throw new UnauthorizedException('Refresh token has been revoked')
+      }
+      throw new UnauthorizedException('Invalid refresh token')
+    }
+  }
+
+  async logout(refreshToken: string) {
+    try {
+      // 1. Verify refresh token
+      await this.tokenService.verifyRefreshToken(refreshToken)
+
+      // 2. delete old refresh token
+      await this.prisma.refreshToken.delete({
+        where: {
+          token: refreshToken,
+        },
+      })
+
+      return { message: 'Logout successfully' }
     } catch (error) {
       // nếu đã refresh token rồi => thông báo refresh token đã bị hack
       if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
