@@ -2,6 +2,7 @@ import { TokenService } from './../../shared/services/token.service'
 import { ConflictException, Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common'
 import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library'
 import { LoginBodyDto } from 'src/routes/auth/auth.dto'
+import { isUniqueConstraintPrismaError } from 'src/shared/helpers'
 import { HashingService } from 'src/shared/services/hashing.service'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
@@ -25,7 +26,7 @@ export class AuthService {
       })
       return user
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError && error.code === 'P2002') {
+      if (isUniqueConstraintPrismaError(error)) {
         throw new ConflictException('Email already exists')
       }
       throw error

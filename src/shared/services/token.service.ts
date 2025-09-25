@@ -23,9 +23,16 @@ export class TokenService {
     })
   }
 
+  verifyAccessToken(token: string): Promise<TokenPayload> {
+    return this.jwtService.verifyAsync(token, {
+      secret: env.ACCESS_TOKEN_SECRET,
+      algorithms: ['HS256'],
+    })
+  }
+
   verifyRefreshToken(token: string): Promise<TokenPayload> {
     return this.jwtService.verifyAsync(token, {
-      secret: env.REFRESH_TOKEN_SECRET,
+      secret: env.ACCESS_TOKEN_SECRET,
       algorithms: ['HS256'],
     })
   }
